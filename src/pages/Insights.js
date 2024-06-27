@@ -1,25 +1,29 @@
-// src/pages/Insights.js
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { AppContext } from '../context/AppContext';
 
 const Insights = () => {
   const { videos } = useContext(AppContext);
+
   const [top5Videos, setTop5Videos] = useState([]);
 
   useEffect(() => {
     const fetchVideoDetails = async () => {
-      const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw'; // Replace with your actual API key
+      const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
+
       const videoDetails = await Promise.all(
         videos.map(async (video) => {
           const videoId = video.id.videoId;
+
           const response = await fetch(
             `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${API_KEY}`
           );
+
           const data = await response.json();
           return { ...video, statistics: data.items[0].statistics };
         })
       );
+
       setTop5Videos(
         videoDetails
           .sort((a, b) => b.statistics.likeCount - a.statistics.likeCount)
@@ -39,6 +43,7 @@ const Insights = () => {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Top 5 Video Likes</h2>
+
       {top5Videos.length > 0 ? (
         <div className="flex flex-col items-center">
           <PieChart width={400} height={400}>
@@ -60,24 +65,31 @@ const Insights = () => {
                 />
               ))}
             </Pie>
+
             <Tooltip />
           </PieChart>
+
           <table className="table-auto mt-8 w-full max-w-md">
             <thead>
               <tr>
                 <th className="px-4 py-2">Color</th>
+
                 <th className="px-4 py-2">Video Title</th>
+
                 <th className="px-4 py-2">Likes</th>
               </tr>
             </thead>
+
             <tbody>
               {top5Videos.map((video, index) => (
                 <tr key={video.name}>
                   <td
                     className="px-4 py-2"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  ></td>
+                  />
+
                   <td className="px-4 py-2">{video.name}</td>
+
                   <td className="px-4 py-2">{video.likes}</td>
                 </tr>
               ))}

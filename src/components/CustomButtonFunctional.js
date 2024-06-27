@@ -1,8 +1,7 @@
-// src/components/CustomButtonFunctional.js
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 
 const CustomButtonFunctional = forwardRef(({ onClick, style }, ref) => {
-  const [title, setTitle] = useState('Button');
+  const [title, setTitle] = useState('Search');
 
   useImperativeHandle(ref, () => ({
     setTitle: (newTitle) => setTitle(newTitle),

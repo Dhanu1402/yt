@@ -1,10 +1,9 @@
-// src/components/CustomButtonClass.js
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 class CustomButtonClass extends Component {
   constructor(props) {
     super(props);
-    this.state = { title: 'Button' };
+    this.state = { title: 'Search' };
   }
 
   setTitle = (newTitle) => {
