@@ -10,30 +10,31 @@ const App = () => {
   return (
     <AppProvider>
       <Router>
-        <div>
+        <div className="flex flex-col min-h-screen">
           <nav className="bg-gray-800 p-4">
             <ul className="flex space-x-4 text-white">
               <li>
-                <Link to="/">Dashboard</Link>
+                <Link to="/dashboard" className="hover:underline">
+                  Dashboard
+                </Link>
               </li>
-
               <li>
-                <Link to="/search-history">Search History</Link>
-              </li>
-
-              <li>
-                <Link to="/insights">Insights</Link>
+                <Link to="/search-history" className="hover:underline">
+                  Search History
+                </Link>
               </li>
             </ul>
           </nav>
-
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-
-            <Route path="/insights" element={<Insights />} />
-
-            <Route path="/search-history" element={<SearchHistory />} />
-          </Routes>
+          <main className="flex-grow p-4 bg-gray-100">
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/insights" element={<Insights />} />
+              <Route path="/search-history" element={<SearchHistory />} />
+            </Routes>
+          </main>
+          <footer className="bg-gray-800 p-4 text-white text-center">
+            &copy; {new Date().getFullYear()} Your App Name
+          </footer>
         </div>
       </Router>
     </AppProvider>
