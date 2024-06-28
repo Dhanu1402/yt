@@ -3,16 +3,24 @@ import { AppContext } from '../context/AppContext';
 import CustomButtonFunctional from '../components/CustomButtonFunctional';
 import YouTube from 'react-youtube';
 import { Link } from 'react-router-dom';
+import ErrorMessage from '../components/ErrorMessage';
 
 const Dashboard = () => {
   const { videos, setVideos, addSearchHistory } = useContext(AppContext);
+
   const [handle, setHandle] = useState('');
+
   const [selectedVideo, setSelectedVideo] = useState(null);
+
   const [noVideosMessage, setNoVideosMessage] = useState('');
+
+  const [apiError, setApiError] = useState('');
+
   const buttonRef = useRef();
 
   const searchVideos = async () => {
     const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
+
     const maxResults = 8;
 
     try {
@@ -20,21 +28,33 @@ const Dashboard = () => {
         `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
       );
 
+      if (!response.ok) {
+        throw new Error(`API call failed with status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.items && data.items.length > 0) {
         setVideos(data.items);
+
         setNoVideosMessage('');
+
+        setApiError('');
       } else {
         setVideos([]);
+
         setNoVideosMessage('No videos available for this handle.');
       }
 
       addSearchHistory(handle);
+
       buttonRef.current.setTitle('Search Completed');
     } catch (error) {
       console.error('Error fetching videos:', error);
-      setNoVideosMessage('Error fetching videos. Please try again later.');
+
+      setApiError(`Error fetching videos: ${error.message}`);
+
+      setNoVideosMessage('');
     }
   };
 
@@ -59,8 +79,11 @@ const Dashboard = () => {
             placeholder="Enter YouTube handle"
             className="w-full md:flex-1 p-2 border border-gray-300 rounded mb-2 md:mb-0 md:mr-2"
           />
+
           <CustomButtonFunctional ref={buttonRef} onClick={searchVideos} />
         </div>
+
+        {apiError && <ErrorMessage error={apiError} />}
 
         {noVideosMessage && (
           <p className="text-center text-red-500">{noVideosMessage}</p>
@@ -79,12 +102,14 @@ const Dashboard = () => {
                   alt={video.snippet.title}
                   className="mb-2 w-full h-40 object-cover rounded"
                 />
+
                 <p className="text-sm">{video.snippet.title}</p>
               </div>
             ))}
           </div>
         ) : (
-          !noVideosMessage && (
+          !noVideosMessage &&
+          !apiError && (
             <p className="text-center">
               No videos available. Please search for something.
             </p>
@@ -100,6 +125,7 @@ const Dashboard = () => {
               >
                 ✕
               </button>
+
               <YouTube videoId={selectedVideo} opts={opts} />
             </div>
           </div>
