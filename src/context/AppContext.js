@@ -18,7 +18,9 @@ export const AppProvider = ({ children }) => {
   }, [searchHistory]);
 
   const addSearchHistory = (handle) => {
-    setSearchHistory([...searchHistory, handle]);
+    const timestamp = new Date().toLocaleString();
+
+    setSearchHistory([...searchHistory, { handle, timestamp }]);
   };
 
   return (

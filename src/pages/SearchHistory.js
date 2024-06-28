@@ -10,9 +10,10 @@ const SearchHistory = () => {
 
       {searchHistory.length > 0 ? (
         <ul className="list-disc pl-5 space-y-2">
-          {searchHistory.map((handle, index) => (
+          {searchHistory.map((entry, index) => (
             <li key={index} className="text-gray-700">
-              {handle}
+              <span className="font-semibold">{entry.handle}</span> -{' '}
+              <span className="text-gray-500">{entry.timestamp}</span>
             </li>
           ))}
         </ul>
