@@ -55,7 +55,7 @@ const Insights = () => {
               cy="50%"
               outerRadius={150}
               fill="#8884d8"
-              label={({ name, likes }) => `${name} (${likes})`}
+              label={({ likes }) => `(${likes})`}
               labelLine={false}
             >
               {top5Videos.map((entry, index) => (

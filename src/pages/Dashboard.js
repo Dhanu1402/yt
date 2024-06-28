@@ -6,27 +6,36 @@ import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { videos, setVideos, addSearchHistory } = useContext(AppContext);
-
   const [handle, setHandle] = useState('');
-
   const [selectedVideo, setSelectedVideo] = useState(null);
-
+  const [noVideosMessage, setNoVideosMessage] = useState('');
   const buttonRef = useRef();
 
   const searchVideos = async () => {
     const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
-
     const maxResults = 8;
 
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
-    );
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
+      );
 
-    const data = await response.json();
+      const data = await response.json();
 
-    setVideos(data.items);
-    addSearchHistory(handle);
-    buttonRef.current.setTitle('Search Completed');
+      if (data.items && data.items.length > 0) {
+        setVideos(data.items);
+        setNoVideosMessage('');
+      } else {
+        setVideos([]);
+        setNoVideosMessage('No videos available for this handle.');
+      }
+
+      addSearchHistory(handle);
+      buttonRef.current.setTitle('Search Completed');
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+      setNoVideosMessage('Error fetching videos. Please try again later.');
+    }
   };
 
   const opts = {
@@ -50,9 +59,12 @@ const Dashboard = () => {
             placeholder="Enter YouTube handle"
             className="w-full md:flex-1 p-2 border border-gray-300 rounded mb-2 md:mb-0 md:mr-2"
           />
-
           <CustomButtonFunctional ref={buttonRef} onClick={searchVideos} />
         </div>
+
+        {noVideosMessage && (
+          <p className="text-center text-red-500">{noVideosMessage}</p>
+        )}
 
         {videos.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
@@ -67,13 +79,16 @@ const Dashboard = () => {
                   alt={video.snippet.title}
                   className="mb-2 w-full h-40 object-cover rounded"
                 />
-
                 <p className="text-sm">{video.snippet.title}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-center">No videos available do search anything.</p>
+          !noVideosMessage && (
+            <p className="text-center">
+              No videos available. Please search for something.
+            </p>
+          )
         )}
 
         {selectedVideo && (
@@ -85,7 +100,6 @@ const Dashboard = () => {
               >
                 ✕
               </button>
-
               <YouTube videoId={selectedVideo} opts={opts} />
             </div>
           </div>
