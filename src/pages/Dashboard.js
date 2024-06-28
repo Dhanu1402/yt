@@ -16,8 +16,10 @@ const Dashboard = () => {
   const searchVideos = async () => {
     const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
 
+    const maxResults = 10;
+
     const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&key=${API_KEY}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
     );
 
     const data = await response.json();
