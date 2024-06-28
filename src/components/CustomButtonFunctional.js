@@ -9,7 +9,7 @@ const CustomButtonFunctional = forwardRef(({ onClick, style }, ref) => {
 
   return (
     <button
-      className={`py-2 px-4 bg-blue-500 text-white rounded ${style}`}
+      className={`py-2 px-4 bg-purple-200 hover:bg-purple-600 transition-colors rounded ${style}`}
       onClick={onClick}
     >
       {title}

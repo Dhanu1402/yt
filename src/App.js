@@ -9,8 +9,8 @@ const App = () => {
     <AppProvider>
       <Router>
         <div className="flex flex-col min-h-screen">
-          <nav className="bg-gray-800 p-4">
-            <ul className="flex space-x-4 text-white">
+          <nav className="bg-purple-200 p-4">
+            <ul className="flex space-x-4">
               <li>
                 <Link to="/dashboard" className="hover:underline">
                   Dashboard
@@ -25,7 +25,7 @@ const App = () => {
             </ul>
           </nav>
 
-          <main className="flex-grow p-4 bg-gray-100">
+          <main className="flex-grow p-4 bg-gray-200">
             <Routes>
               <Route path="/dashboard" element={<Dashboard />} />
 

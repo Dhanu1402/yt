@@ -16,7 +16,7 @@ const Dashboard = () => {
   const searchVideos = async () => {
     const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
 
-    const maxResults = 10;
+    const maxResults = 8;
 
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
@@ -38,7 +38,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 bg-gray-400 rounded-md min-h-screen">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
 
@@ -65,7 +65,7 @@ const Dashboard = () => {
                 <img
                   src={video.snippet.thumbnails.default.url}
                   alt={video.snippet.title}
-                  className="mb-2 w-full h-40 object-cover"
+                  className="mb-2 w-full h-40 object-cover rounded"
                 />
 
                 <p className="text-sm">{video.snippet.title}</p>
@@ -73,9 +73,7 @@ const Dashboard = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 text-center">
-            No videos available do search anything.
-          </p>
+          <p className="text-center">No videos available do search anything.</p>
         )}
 
         {selectedVideo && (
@@ -96,7 +94,7 @@ const Dashboard = () => {
         <div className="flex justify-center mt-6">
           <Link
             to="/insights"
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+            className="bg-purple-200 py-2 px-4 rounded hover:bg-purple-600 transition-colors"
           >
             Go to Insights
           </Link>
