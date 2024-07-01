@@ -1,4 +1,4 @@
-import { useState, useContext, useRef } from 'react';
+import { useState, useContext, useRef, useEffect, useCallback } from 'react';
 import { AppContext } from '../context/AppContext';
 import CustomButtonFunctional from '../components/CustomButtonFunctional';
 import YouTube from 'react-youtube';
@@ -16,47 +16,62 @@ const Dashboard = () => {
 
   const [apiError, setApiError] = useState('');
 
-  const buttonRef = useRef();
+  const [loading, setLoading] = useState(false);
 
-  const searchVideos = async () => {
-    const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
+  const [pageToken, setPageToken] = useState(null);
 
-    const maxResults = 8;
+  const loadingRef = useRef(null);
 
-    try {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&key=${API_KEY}`
-      );
+  const API_KEY = 'AIzaSyCwLVSWQkNZngUhoraN_leGhF05Nv0Dhzw';
 
-      if (!response.ok) {
-        throw new Error(`API call failed with status: ${response.status}`);
-      }
+  const maxResults = 8;
 
-      const data = await response.json();
+  const searchVideos = useCallback(
+    async (newSearch = false) => {
+      if (loading) return;
 
-      if (data.items && data.items.length > 0) {
-        setVideos(data.items);
+      setLoading(true);
 
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${handle}&maxResults=${maxResults}&pageToken=${
+            pageToken || ''
+          }&key=${API_KEY}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`API call failed with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          setVideos((prevVideos) =>
+            newSearch ? data.items : [...prevVideos, ...data.items]
+          );
+          setNoVideosMessage('');
+          setApiError('');
+          setPageToken(data.nextPageToken || null);
+
+          if (newSearch) {
+            addSearchHistory(handle);
+          }
+        } else {
+          if (newSearch) {
+            setVideos([]);
+          }
+          setNoVideosMessage('No videos available for this handle.');
+        }
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+        setApiError(`Error fetching videos: ${error.message}`);
         setNoVideosMessage('');
-
-        setApiError('');
-      } else {
-        setVideos([]);
-
-        setNoVideosMessage('No videos available for this handle.');
+      } finally {
+        setLoading(false);
       }
-
-      addSearchHistory(handle);
-
-      buttonRef.current.setTitle('Search Completed');
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-
-      setApiError(`Error fetching videos: ${error.message}`);
-
-      setNoVideosMessage('');
-    }
-  };
+    },
+    [handle, pageToken, setVideos, addSearchHistory, loading]
+  );
 
   const opts = {
     height: '390',
@@ -65,6 +80,39 @@ const Dashboard = () => {
       autoplay: 1,
     },
   };
+
+  const handleObserver = useCallback(
+    (entries) => {
+      const target = entries[0];
+
+      if (target.isIntersecting && pageToken) {
+        searchVideos();
+      }
+    },
+    [pageToken, searchVideos]
+  );
+
+  useEffect(() => {
+    const option = {
+      root: null,
+      rootMargin: '20px',
+      threshold: 1.0,
+    };
+
+    const observer = new IntersectionObserver(handleObserver, option);
+
+    const currentLoadingRef = loadingRef.current;
+
+    if (currentLoadingRef) {
+      observer.observe(currentLoadingRef);
+    }
+
+    return () => {
+      if (currentLoadingRef) {
+        observer.unobserve(currentLoadingRef);
+      }
+    };
+  }, [handleObserver]);
 
   return (
     <div className="p-8 bg-gray-400 rounded-md min-h-screen">
@@ -80,7 +128,7 @@ const Dashboard = () => {
             className="w-full md:flex-1 p-2 border border-gray-300 rounded mb-2 md:mb-0 md:mr-2"
           />
 
-          <CustomButtonFunctional ref={buttonRef} onClick={searchVideos} />
+          <CustomButtonFunctional onClick={() => searchVideos(true)} />
         </div>
 
         {apiError && <ErrorMessage error={apiError} />}
@@ -106,6 +154,8 @@ const Dashboard = () => {
                 <p className="text-sm">{video.snippet.title}</p>
               </div>
             ))}
+
+            <div ref={loadingRef} className="loading-indicator"></div>
           </div>
         ) : (
           !noVideosMessage &&
